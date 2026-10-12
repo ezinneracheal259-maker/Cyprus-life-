@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#073b4c">
+<title>Cyprus Life — Open World</title>
+<style>
+:root{--navy:#073b4c;--teal:#087e8b;--mint:#d7f7ed;--gold:#ffd166;--paper:#f5fbfa;--ink:#143543;--pink:#f7a8b8}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#d8f2ed;color:var(--ink);touch-action:manipulation}
+button{font:inherit;border:0;cursor:pointer;touch-action:manipulation}
+#game{height:100dvh;display:flex;flex-direction:column;background:linear-gradient(#d8f6f3,#f9edcb)}
+.top{padding:calc(env(safe-area-inset-top) + 8px) 12px 10px;background:linear-gradient(120deg,#052e3c,#087e8b);color:white;box-shadow:0 4px 18px #05374640;z-index:3}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:8px}.brand{font-weight:1000;letter-spacing:2px;font-size:18px}.sub{font-size:9px;letter-spacing:3px;opacity:.8}.money{background:#ffffff1c;border:1px solid #ffffff33;padding:8px 11px;border-radius:18px;font-weight:900;white-space:nowrap}
+.tabs{display:flex;gap:7px;overflow-x:auto;margin-top:12px;padding-bottom:2px;scrollbar-width:none}.tabs button{flex:0 0 auto;background:#ffffff18;color:white;padding:9px 13px;border-radius:13px;font-weight:800;border:1px solid #ffffff20}.tabs button.active{background:#d7f7ed;color:#073b4c;box-shadow:0 3px 0 #38c8a2}
+main{flex:1;min-height:0;overflow:auto;padding:10px 10px calc(12px + env(safe-area-inset-bottom));}
+.scene-card{background:#fff;border:1px solid #dcece8;border-radius:22px;overflow:hidden;box-shadow:0 10px 30px #174b4b17}
+.scenehead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 13px;font-size:12px;font-weight:900}.pill{border-radius:30px;padding:7px 10px;background:#e6f7f0;color:#187b5b}.scene{position:relative;width:100%;height:min(54vh,470px);min-height:300px;overflow:hidden;background:#a7e0dd;isolation:isolate}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.hud{position:absolute;left:10px;top:10px;display:grid;gap:6px;pointer-events:none}.hud span{background:#fffffff0;border:1px solid #fff;padding:7px 9px;border-radius:12px;font-size:11px;font-weight:850;box-shadow:0 3px 9px #1233}
+.controls{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}
+.pad{display:grid;grid-template-columns:42px 42px 42px;grid-template-rows:42px 42px;gap:4px;pointer-events:auto}.pad button,.actionbtn{background:#073b4cde;color:white;border:1px solid #ffffff60;border-radius:13px;font-size:20px;font-weight:1000;box-shadow:0 4px 10px #002b3c44;backdrop-filter:blur(8px)}.pad .up{grid-column:2}.pad .left{grid-column:1;grid-row:2}.pad .down{grid-column:2;grid-row:2}.pad .right{grid-column:3;grid-row:2}.actionstack{display:flex;flex-direction:column;gap:6px;pointer-events:auto;align-items:end}.actionbtn{font-size:11px;padding:11px 13px;min-width:102px}
+.hint{padding:9px 12px;background:#eff9f6;color:#42636c;font-size:11px;font-weight:650;line-height:1.45}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.stat{padding:10px;background:#fff;border:1px solid #e0eeea;border-radius:14px;font-size:11px;font-weight:800}.stat b{display:block;font-size:14px;margin-top:3px}
+.panel{background:#fff;border:1px solid #dcece8;border-radius:20px;padding:14px;margin-top:10px;box-shadow:0 5px 18px #174b4b0c}.panel h2{margin:0 0 5px;font-size:17px;color:var(--navy)}.muted{font-size:12px;color:#63808a;line-height:1.45}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:11px}.item{border:1px solid #dcece8;border-radius:15px;padding:11px;background:#fbfefd;min-width:0}.item .emoji{font-size:26px}.item strong{display:block;font-size:13px;margin:4px 0}.item small{display:block;color:#64818a;font-size:11px;line-height:1.35;min-height:28px}.buy{width:100%;background:var(--navy);color:white;border-radius:10px;padding:9px 7px;margin-top:9px;font-size:12px;font-weight:900}.buy:disabled{opacity:.45}.rowbtns{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.secondary{background:#e7f6f1;color:#075266;border-radius:11px;padding:10px 12px;font-size:12px;font-weight:900}.notice{margin-top:9px;padding:10px;border-radius:12px;background:#fff6db;color:#765319;font-size:12px;font-weight:700}
+.toast{position:fixed;z-index:20;bottom:calc(env(safe-area-inset-bottom) + 20px);left:50%;transform:translateX(-50%);background:#062f3e;color:white;border-radius:30px;padding:11px 16px;box-shadow:0 8px 30px #002a3c55;font-size:12px;font-weight:850;max-width:90vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}.toast.show{opacity:1}
+.overlay{position:fixed;inset:0;background:#032b36aa;display:none;align-items:center;justify-content:center;z-index:15;padding:20px}.overlay.show{display:flex}.modal{background:#fff;border-radius:22px;padding:20px;max-width:360px;width:100%;box-shadow:0 20px 60px #001e2b66}.modal h2{margin:0 0 8px}.modal p{font-size:13px;line-height:1.5;color:#526d76}.modal button{background:var(--navy);color:white;padding:12px;border-radius:12px;width:100%;font-weight:900;margin-top:8px}
+footer{text-align:center;font-size:9px;color:#66848a;padding:7px}
+@media(min-width:700px){main{max-width:900px;width:100%;margin:0 auto}.scene{height:480px}.top{padding-left:max(16px,calc((100vw - 900px)/2));padding-right:max(16px,calc((100vw - 900px)/2))}.brand{font-size:22px}}
+</style>
+</head>
+<body>
+<div id="game">
+<header class="top">
+ <div class="brandrow"><div><div class="brand">🌴 CYPRUS LIFE</div><div class="sub">YOUR LIFE. YOUR ISLAND. YOUR STORY.</div></div><div class="money" id="cash">₺7,500</div></div>
+ <nav class="tabs" id="tabs">
+  <button class="active" data-tab="world">🌆 Explore</button><button data-tab="home">🏡 My Home</button><button data-tab="property">🏠 Properties</button><button data-tab="furniture">🛋️ Furniture</button><button data-tab="life">💼 Life</button>
+ </nav>
+</header>
+<main id="main"></main>
+<footer>CYPRUS LIFE • Prototype v0.5 • Your progress saves on this device</footer>
+</div>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay"><div class="modal"><h2 id="modalTitle">Welcome</h2><p id="modalText"></p><button id="modalBtn">Let's play</button></div></div>
+<script>
+(()=>{'use strict';
+const $=s=>document.querySelector(s);
+const defaultState={cash:7500,energy:82,mood:78,rep:13,city:'Girne',scene:'world',x:0,y:0,homeId:null,owned:[],furniture:[],job:null,day:1,time:9,walks:0};
+let state;try{state={...defaultState,...JSON.parse(localStorage.getItem('cyprusLifeV05')||'{}')}}catch(e){state={...defaultState}}
+const cities=[
+ {name:'Girne',x:.26,y:.43,sky:'#82d5e2',ground:'#e5d4a3',desc:'Harbour cafés, seaside roads and apartment life.'},
+ {name:'Lefkoşa',x:.53,y:.56,sky:'#9ed9e4',ground:'#e6d3a0',desc:'Busy capital streets, shopping and office jobs.'},
+ {name:'Gazimağusa',x:.78,y:.67,sky:'#87d7df',ground:'#e6d4a4',desc:'Coastal streets, university energy and old-town walls.'},
+ {name:'İskele',x:.73,y:.31,sky:'#81dbe5',ground:'#e9d5a1',desc:'Beach roads, holiday apartments and sunny days.'},
+ {name:'Güzelyurt',x:.19,y:.56,sky:'#9bd8d8',ground:'#e3d2a1',desc:'Quiet neighbourhoods and local markets.'},
+ {name:'Lefke',x:.30,y:.76,sky:'#9dd9d5',ground:'#e5d3a2',desc:'Green hills, small streets and a slower pace.'}
+];
+const homes=[
+ {id:'studio',name:'Starter Studio',emoji:'🏢',city:'Girne',price:2500,rent:450,desc:'A compact studio with a kitchenette and shower room.',type:'rent'},
+ {id:'onebed',name:'One-Bedroom Apartment',emoji:'🏡',city:'Girne',price:12500,rent:850,desc:'Separate bedroom, open kitchen, lounge and bathroom.',type:'rent'},
+ {id:'cityflat',name:'City Flat',emoji:'🏙️',city:'Lefkoşa',price:18000,rent:1100,desc:'A brighter flat close to work and shopping.',type:'rent'},
+ {id:'seaview',name:'Sea-View Apartment',emoji:'🌊',city:'İskele',price:35000,rent:1900,desc:'A premium coastal home with a balcony.',type:'buy'},
+ {id:'family',name:'Family Townhouse',emoji:'🏘️',city:'Gazimağusa',price:52000,rent:2400,desc:'More space, a larger lounge and a small garden.',type:'buy'}
+];
+const furniture=[
+ {id:'bed',name:'Double bed',emoji:'🛏️',price:850,room:'Bedroom',desc:'A comfy place to recharge.'},
+ {id:'wardrobe',name:'Wardrobe',emoji:'🚪',price:500,room:'Bedroom',desc:'Store your outfits neatly.'},
+ {id:'sofa',name:'Modern sofa',emoji:'🛋️',price:900,room:'Living room',desc:'A soft two-seat sofa.'},
+ {id:'tv',name:'Flat-screen TV',emoji:'📺',price:1200,room:'Living room',desc:'Make your lounge feel complete.'},
+ {id:'table',name:'Coffee table',emoji:'🪵',price:300,room:'Living room',desc:'A small centre table.'},
+ {id:'fridge',name:'Fridge',emoji:'🧊',price:750,room:'Kitchen',desc:'Keep food and drinks cool.'},
+ {id:'stove',name:'Cooker',emoji:'🍳',price:650,room:'Kitchen',desc:'Cook proper meals at home.'},
+ {id:'plant',name:'Indoor plant',emoji:'🪴',price:180,room:'Decor',desc:'A little greenery.'},
+ {id:'mirror',name:'Full-length mirror',emoji:'🪞',price:400,room:'Bedroom',desc:'Check your outfit before going out.'},
+ {id:'lamp',name:'Floor lamp',emoji:'💡',price:260,room:'Living room',desc:'Warm evening lighting.'}
+];
+const jobs=[{name:'Café assistant',pay:650,energy:18,desc:'A short shift serving customers.'},{name:'Shop attendant',pay:780,energy:22,desc:'Help customers and restock shelves.'},{name:'Office assistant',pay:950,energy:25,desc:'A full shift in the city.'},{name:'Lash appointment',pay:1200,energy:20,desc:'Run a beauty appointment in your own business.'}];
+function save(){localStorage.setItem('cyprusLifeV05',JSON.stringify(state));$('#cash').textContent='₺'+state.cash.toLocaleString('en-US')}
+function toast(t){let el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+function currentHome(){return homes.find(h=>h.id===state.homeId)}
+function furnitureCount(){return state.furniture.length}
+function spend(n){if(state.cash<n){toast('Not enough money yet. Try a job first.');return false}state.cash-=n;save();return true}
+function earn(n){state.cash+=n;save()}
+function changeStat(k,n){state[k]=Math.max(0,Math.min(100,(state[k]||0)+n));save()}
+function render(){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.scene));$('#cash').textContent='₺'+state.cash.toLocaleString('en-US');let m=$('#main');m.innerHTML='';
+ if(state.scene==='world')renderWorld(m);else if(state.scene==='home')renderHome(m);else if(state.scene==='property')renderProperty(m);else if(state.scene==='furniture')renderFurniture(m);else renderLife(m)}
+function sceneHeader(label,right){return `<div class="scenehead"><span class="pill">${label}</span><span>${right}</span></div>`}
+function renderWorld(m){let city=cities.find(c=>c.name===state.city)||cities[0];m.innerHTML=`<section class="scene-card">${sceneHeader('☀️ DAY '+state.day+' • '+city.name.toUpperCase(),'🌤️ '+String(state.time).padStart(2,'0')+':00')}<div class="scene"><canvas id="worldCanvas"></canvas><div class="hud"><span>📍 ${city.name}</span><span>⚡ Energy ${state.energy}%</span><span>🚶 Steps ${state.walks}</span></div><div class="controls"><div class="pad"><button class="up" data-move="up">▲</button><button class="left" data-move="left">◀</button><button class="down" data-move="down">▼</button><button class="right" data-move="right">▶</button></div><div class="actionstack"><button class="actionbtn" id="interact">🔎 Interact</button><button class="actionbtn" id="goHome">🏡 Go home</button></div></div></div><div class="hint">Use the arrow pad to walk around. Tap <b>Interact</b> when you are near a place. This is a 2.5D-style prototype; your character moves around the scene on your phone.</div></section><div class="stats"><div class="stat">⚡ Energy<b>${state.energy}%</b></div><div class="stat">😊 Mood<b>${state.mood}%</b></div><div class="stat">⭐ Reputation<b>${state.rep}</b></div></div><section class="panel"><h2>Travel around North Cyprus</h2><div class="muted">Choose another city. Travel costs money, and your character's location will change.</div><div class="cards">${cities.map(c=>`<div class="item"><div class="emoji">📍</div><strong>${c.name}</strong><small>${c.desc}</small><button class="buy" data-city="${c.name}" ${c.name===state.city?'disabled':''}>${c.name===state.city?'You are here':'Travel • ₺180'}</button></div>`).join('')}</div></section>`;
+ drawWorld();m.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.move)));m.querySelectorAll('[data-city]').forEach(b=>b.addEventListener('click',()=>travel(b.dataset.city)));$('#interact').onclick=interact;$('#goHome').onclick=()=>{if(!currentHome()){state.scene='property';render();toast('Choose a home before moving in.')}else{state.city=currentHome().city;state.scene='home';state.x=0;state.y=0;save();render()}}}
+function drawWorld(){const c=$('#worldCanvas');if(!c)return;const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=r.width*d;c.height=r.height*d;const ctx=c.getContext('2d');ctx.scale(d,d);const w=r.width,h=r.height;let city=cities.find(x=>x.name===state.city)||cities[0];
+ const grad=ctx.createLinearGradient(0,0,0,h);grad.addColorStop(0,city.sky);grad.addColorStop(.58,'#bfe7d2');grad.addColorStop(1,city.ground);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+ // sun and soft clouds
+ ctx.fillStyle='#fff0a3';ctx.beginPath();ctx.arc(w*.83,h*.13,27,0,Math.PI*2);ctx.fill();
+ for(let i=0;i<5;i++){ctx.fillStyle='rgba(255,255,255,.34)';ctx.beginPath();ctx.ellipse((i*97+30)%w,35+(i%2)*28,34,8,0,0,7);ctx.fill()}
+ // hills skyline
+ ctx.fillStyle='#5ba99a';ctx.beginPath();ctx.moveTo(0,h*.43);ctx.lineTo(w*.15,h*.25);ctx.lineTo(w*.28,h*.38);ctx.lineTo(w*.43,h*.20);ctx.lineTo(w*.61,h*.39);ctx.lineTo(w*.79,h*.24);ctx.lineTo(w,h*.38);ctx.lineTo(w,h*.65);ctx.lineTo(0,h*.65);ctx.fill();
+ // city blocks
+ for(let i=0;i<9;i++){let bx=(i*83+18)%w,by=h*.42+(i%3)*26,bw=35+(i%3)*9,bh=55+(i%4)*12;ctx.fillStyle=['#f1c48d','#f5d8ad','#dcae82','#f5e1bb'][i%4];ctx.fillRect(bx,by-bh,bw,bh);ctx.fillStyle='#7ab9c0';for(let xx=bx+7;xx<bx+bw-4;xx+=14)for(let yy=by-bh+10;yy<by-8;yy+=17)ctx.fillRect(xx,yy,6,8);ctx.fillStyle='#9c6b52';ctx.fillRect(bx-3,by-bh-4,bw+6,5)}
+ // streets perspective
+ ctx.fillStyle='#657b7b';ctx.beginPath();ctx.moveTo(w*.34,h*.43);ctx.lineTo(w*.57,h*.43);ctx.lineTo(w*.97,h);ctx.lineTo(w*.05,h);ctx.fill();ctx.strokeStyle='#fff1b8';ctx.lineWidth=3;ctx.setLineDash([15,12]);ctx.beginPath();ctx.moveTo(w*.46,h*.46);ctx.lineTo(w*.52,h);ctx.stroke();ctx.setLineDash([]);
+ // sidewalks
+ ctx.fillStyle='#e4d9ba';ctx.beginPath();ctx.moveTo(w*.30,h*.43);ctx.lineTo(w*.34,h*.43);ctx.lineTo(w*.05,h);ctx.lineTo(0,h);ctx.fill();
+ // shop / home location markers
+ const places=[{x:.18,y:.57,t:'CAFÉ',e:'☕',c:'#b76c42'},{x:.78,y:.48,t:'MARKET',e:'🛍️',c:'#2b987d'},{x:.75,y:.77,t:'BUS STOP',e:'🚌',c:'#286e9a'},{x:.20,y:.75,t:'HOME AREA',e:'🏠',c:'#8a65ad'}];
+ places.forEach(p=>{let x=w*p.x,y=h*p.y;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.roundRect(x-33,y-17,66,34,8);ctx.fill();ctx.fillStyle=p.c;ctx.beginPath();ctx.roundRect(x-30,y-14,60,28,6);ctx.fill();ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle='white';ctx.fillText(p.e+' '+p.t,x,y+3)});
+ // character
+ const px=w*(.5+state.x*.24),py=h*(.76+state.y*.14);
+ ctx.fillStyle='#14354355';ctx.beginPath();ctx.ellipse(px,py+16,12,5,0,0,7);ctx.fill();
+ ctx.fillStyle='#5b3a2c';ctx.beginPath();ctx.arc(px,py-9,8,0,7);ctx.fill();ctx.fillStyle='#f1b98b';ctx.beginPath();ctx.arc(px,py-10,6,0,7);ctx.fill();ctx.fillStyle='#f7a8b8';ctx.beginPath();ctx.roundRect(px-7,py-3,14,18,5);ctx.fill();ctx.strokeStyle='#f1b98b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(px-6,py+1);ctx.lineTo(px-10,py+9);ctx.moveTo(px+6,py+1);ctx.lineTo(px+10,py+9);ctx.stroke();ctx.strokeStyle='#173847';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(px-3,py+14);ctx.lineTo(px-5,py+22);ctx.moveTo(px+3,py+14);ctx.lineTo(px+5,py+22);ctx.stroke();
+ ctx.fillStyle='#073b4c';ctx.font='bold 11px system-ui';ctx.textAlign='center';ctx.fillText('YOU',px,py+38);
+}
+function move(dir){if(state.energy<2){toast('You are tired. Rest at home.');return}let dx=0,dy=0;if(dir==='left')dx=-.08;if(dir==='right')dx=.08;if(dir==='up')dy=-.08;if(dir==='down')dy=.08;state.x=Math.max(-1,Math.min(1,state.x+dx));state.y=Math.max(-1,Math.min(1,state.y+dy));state.energy=Math.max(0,state.energy-1);state.walks++;if(state.walks%8===0)state.time=(state.time+1)%24;save();drawWorld();const c=$('#worldCanvas');if(c){c.style.transform='scale(1.001)';setTimeout(()=>c.style.transform='',80)}}
+function interact(){const near=Math.abs(state.x)>.58||Math.abs(state.y)>.58;if(near){let options=['You stopped by a local café. Buy a snack for ₺120?','You found a market. Buy groceries for ₺180?','You reached a bus stop. Travel to another city from Explore.'];let i=Math.abs(state.x)>.58?1:Math.abs(state.y)>.58?2:0;if(i===2){toast('Bus stop: choose a city below the map.');return}if(confirm(options[i])){if(spend(i===0?120:180)){changeStat('energy',i===0?8:4);changeStat('mood',5);toast(i===0?'Snack bought. Energy restored!':'Groceries bought. Mood improved!');render()}}}else toast('Walk closer to a café, market, bus stop or home area, then tap Interact.')}
+function travel(name){if(!spend(180))return;state.city=name;state.x=0;state.y=0;state.energy=Math.max(0,state.energy-5);state.time=(state.time+1)%24;save();render();toast('You arrived in '+name+'!')}
+function renderHome(m){let home=currentHome();if(!home){m.innerHTML=`<section class="panel"><h2>🏡 Your home is waiting</h2><p class="muted">You haven't rented or bought a home yet. Pick a property first, then come back here to explore the interior and furnish it.</p><button class="buy" id="findHome">Browse homes</button></section>`;$('#findHome').onclick=()=>{state.scene='property';render()};return}
+m.innerHTML=`<section class="scene-card">${sceneHeader('🏡 YOUR HOME',home.city+' • '+home.name)}<div class="scene"><canvas id="homeCanvas"></canvas><div class="hud"><span>🏠 ${home.name}</span><span>🛋️ ${furnitureCount()} furniture items</span><span>⚡ Energy ${state.energy}%</span></div><div class="controls"><div class="pad"><button class="up" data-hmove="up">▲</button><button class="left" data-hmove="left">◀</button><button class="down" data-hmove="down">▼</button><button class="right" data-hmove="right">▶</button></div><div class="actionstack"><button class="actionbtn" id="rest">😴 Rest</button><button class="actionbtn" id="decorate">🛋️ Decorate</button></div></div></div><div class="hint">Walk around your home with the arrow pad. The room layout updates as you buy furniture. This prototype uses an illustrated 2.5D room, not full 3D.</div></section><section class="panel"><h2>Rooms & belongings</h2><div class="cards"><div class="item"><div class="emoji">🛏️</div><strong>Bedroom</strong><small>${state.furniture.includes('bed')?'Double bed installed':'No bed yet'} • ${state.furniture.includes('wardrobe')?'Wardrobe installed':'Storage needed'}</small></div><div class="item"><div class="emoji">🍳</div><strong>Kitchen</strong><small>${state.furniture.includes('fridge')?'Fridge installed':'No fridge yet'} • ${state.furniture.includes('stove')?'Cooker installed':'No cooker yet'}</small></div><div class="item"><div class="emoji">🛋️</div><strong>Living room</strong><small>${state.furniture.includes('sofa')?'Sofa installed':'No sofa yet'} • ${state.furniture.includes('tv')?'TV installed':'No TV yet'}</small></div><div class="item"><div class="emoji">🚿</div><strong>Bathroom</strong><small>Bathroom and toilet are included in the apartment layout.</small></div></div><div class="rowbtns"><button class="secondary" id="furnitureGo">Shop furniture</button><button class="secondary" id="goCity">Go outside</button></div></section>`;
+drawHome();m.querySelectorAll('[data-hmove]').forEach(b=>b.onclick=()=>{if(state.energy<1){toast('Rest first.');return}let d=b.dataset.hmove;if(d==='left')state.x=Math.max(-1,state.x-.1);if(d==='right')state.x=Math.min(1,state.x+.1);if(d==='up')state.y=Math.max(-1,state.y-.1);if(d==='down')state.y=Math.min(1,state.y+.1);state.energy=Math.max(0,state.energy-1);save();drawHome()});$('#rest').onclick=()=>{state.energy=Math.min(100,state.energy+25);state.mood=Math.min(100,state.mood+8);state.time=(state.time+2)%24;save();render();toast('You rested. Energy restored!')};$('#decorate').onclick=()=>{state.scene='furniture';render()};$('#furnitureGo').onclick=()=>{state.scene='furniture';render()};$('#goCity').onclick=()=>{state.city=home.city;state.scene='world';state.x=0;state.y=0;save();render()}}
+function drawHome(){const c=$('#homeCanvas');if(!c)return;const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=r.width*d;c.height=r.height*d;const ctx=c.getContext('2d');ctx.scale(d,d);let w=r.width,h=r.height;
+ const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#d5f1ef');g.addColorStop(1,'#f4dcb4');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+ // back wall and floor perspective
+ ctx.fillStyle='#f6ead7';ctx.beginPath();ctx.moveTo(w*.12,h*.13);ctx.lineTo(w*.88,h*.13);ctx.lineTo(w*.88,h*.65);ctx.lineTo(w*.12,h*.65);ctx.fill();
+ ctx.fillStyle='#d2a97e';ctx.beginPath();ctx.moveTo(w*.12,h*.65);ctx.lineTo(w*.88,h*.65);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.fill();
+ // floorboards
+ ctx.strokeStyle='#b78962';ctx.lineWidth=1;for(let i=0;i<7;i++){ctx.beginPath();ctx.moveTo(w*.12,h*.65+i*20);ctx.lineTo(w*.88,h*.65+i*20);ctx.stroke()}for(let i=0;i<8;i++){ctx.beginPath();ctx.moveTo(w*.12+i*w*.11,h*.65);ctx.lineTo(w*.5+(i-3.5)*w*.2,h);ctx.stroke()}
+ // window
+ ctx.fillStyle='#7ec7d5';ctx.fillRect(w*.18,h*.2,w*.19,h*.23);ctx.strokeStyle='#fff7e8';ctx.lineWidth=6;ctx.strokeRect(w*.18,h*.2,w*.19,h*.23);ctx.beginPath();ctx.moveTo(w*.275,h*.2);ctx.lineTo(w*.275,h*.43);ctx.moveTo(w*.18,h*.315);ctx.lineTo(w*.37,h*.315);ctx.stroke();
+ // door
+ ctx.fillStyle='#9d6d4d';ctx.fillRect(w*.76,h*.28,w*.09,h*.37);ctx.fillStyle='#f5d17b';ctx.beginPath();ctx.arc(w*.825,h*.47,3,0,7);ctx.fill();
+ // rug
+ ctx.fillStyle='#b8d8d0';ctx.beginPath();ctx.ellipse(w*.5,h*.84,w*.27,h*.11,0,0,7);ctx.fill();
+ // furniture pieces
+ if(state.furniture.includes('sofa')){ctx.fillStyle='#277f83';ctx.beginPath();ctx.roundRect(w*.18,h*.52,w*.3,h*.18,10);ctx.fill();ctx.fillStyle='#3c9a9a';ctx.fillRect(w*.2,h*.49,w*.26,h*.07);ctx.fillStyle='#d5efeb';ctx.fillRect(w*.22,h*.55,w*.1,h*.07);ctx.fillRect(w*.34,h*.55,w*.1,h*.07)}
+ if(state.furniture.includes('table')){ctx.fillStyle='#75482f';ctx.fillRect(w*.48,h*.72,w*.22,h*.04);ctx.fillRect(w*.5,h*.75,w*.02,h*.08);ctx.fillRect(w*.66,h*.75,w*.02,h*.08)}
+ if(state.furniture.includes('tv')){ctx.fillStyle='#463b3a';ctx.fillRect(w*.58,h*.32,w*.17,h*.12);ctx.fillStyle='#5e9da6';ctx.fillRect(w*.59,h*.33,w*.15,h*.1);ctx.fillStyle='#704a32';ctx.fillRect(w*.61,h*.44,w*.12,h*.04)}
+ if(state.furniture.includes('bed')){ctx.fillStyle='#9e7055';ctx.fillRect(w*.52,h*.48,w*.29,h*.23);ctx.fillStyle='#f7f2e9';ctx.fillRect(w*.54,h*.5,w*.25,h*.08);ctx.fillStyle='#d98e9d';ctx.fillRect(w*.56,h*.51,w*.08,h*.05);ctx.fillStyle='#c8dcd6';ctx.fillRect(w*.54,h*.59,w*.25,h*.1)}
+ if(state.furniture.includes('fridge')){ctx.fillStyle='#e5f0ee';ctx.fillRect(w*.4,h*.29,w*.09,h*.29);ctx.strokeStyle='#8baeb1';ctx.strokeRect(w*.4,h*.29,w*.09,h*.29);ctx.fillRect(w*.46,h*.33,2,h*.07)}
+ if(state.furniture.includes('plant')){ctx.fillStyle='#a86b47';ctx.fillRect(w*.83,h*.56,w*.06,h*.07);ctx.fillStyle='#277c56';ctx.beginPath();ctx.ellipse(w*.85,h*.52,12,22,-.2,0,7);ctx.fill()}
+ // avatar
+ let px=w*(.48+state.x*.12),py=h*(.76+state.y*.07);ctx.fillStyle='#63402e';ctx.beginPath();ctx.arc(px,py-14,7,0,7);ctx.fill();ctx.fillStyle='#f1b98b';ctx.beginPath();ctx.arc(px,py-14,5,0,7);ctx.fill();ctx.fillStyle='#f7a8b8';ctx.beginPath();ctx.roundRect(px-7,py-7,14,17,5);ctx.fill();ctx.strokeStyle='#f1b98b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(px-5,py-2);ctx.lineTo(px-9,py+7);ctx.moveTo(px+5,py-2);ctx.lineTo(px+9,py+7);ctx.stroke();ctx.fillStyle='#143543';ctx.font='bold 10px system-ui';ctx.textAlign='center';ctx.fillText('YOU',px,py+25);
+ ctx.fillStyle='#173b45';ctx.font='bold 11px system-ui';ctx.textAlign='left';ctx.fillText('LIVING ROOM',w*.05,h*.09);if(!state.furniture.includes('sofa')){ctx.fillStyle='#ffffffd9';ctx.fillRect(w*.12,h*.7,w*.35,25);ctx.fillStyle='#173b45';ctx.font='bold 10px system-ui';ctx.fillText('Buy furniture to decorate!',w*.14,h*.755)}
+}
+function renderProperty(m){m.innerHTML=`<section class="panel"><h2>🏠 Find your place</h2><p class="muted">Choose a home in a North Cyprus city. Rent a place to get started, or save up to buy a premium home. You can own one active home in this prototype.</p>${currentHome()?`<div class="notice">Current home: ${currentHome().name} in ${currentHome().city}. You can move to another home, but your existing furniture stays in your inventory.</div>`:''}<div class="cards">${homes.map(h=>`<div class="item"><div class="emoji">${h.emoji}</div><strong>${h.name}</strong><small>📍 ${h.city}<br>${h.desc}</small><div style="font-size:12px;font-weight:900;margin-top:7px">Rent: ₺${h.rent.toLocaleString()} / day</div><div style="font-size:12px;font-weight:900;margin-top:4px">Buy: ₺${h.price.toLocaleString()}</div><button class="buy" data-rent="${h.id}">Rent for ₺${h.rent.toLocaleString()}</button><button class="buy" style="background:#087e8b" data-buy="${h.id}">Buy home</button></div>`).join('')}</div></section>`;m.querySelectorAll('[data-rent]').forEach(b=>b.onclick=()=>chooseHome(b.dataset.rent,'rent'));m.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>chooseHome(b.dataset.buy,'buy'))}
+function chooseHome(id,mode){let h=homes.find(x=>x.id===id);let cost=mode==='rent'?h.rent:h.price;if(!spend(cost))return;state.homeId=id;state.owned=[id];state.city=h.city;state.scene='home';state.x=0;state.y=0;save();render();toast(mode==='rent'?'You rented '+h.name+'!':'Congratulations! You bought '+h.name+'!')}
+function renderFurniture(m){let home=currentHome();m.innerHTML=`<section class="panel"><h2>🛋️ Furniture store</h2><p class="muted">${home?'Furnish your '+home.name+'. Buy an item and it will appear in your home.':'Choose a home before buying furniture.'} Items are paid for with your in-game money.</p>${!home?'<button class="buy" id="chooseHome">Choose a home first</button>':''}<div class="cards">${furniture.map(f=>`<div class="item"><div class="emoji">${f.emoji}</div><strong>${f.name}</strong><small>${f.room} • ${f.desc}</small><div style="font-size:12px;font-weight:900;margin-top:7px">₺${f.price.toLocaleString()}</div><button class="buy" data-furn="${f.id}" ${!home||state.furniture.includes(f.id)?'disabled':''}>${state.furniture.includes(f.id)?'Purchased ✓':'Buy item'}</button></div>`).join('')}</div><div class="rowbtns"><button class="secondary" id="viewHome">View my home</button></div></section>`;if($('#chooseHome'))$('#chooseHome').onclick=()=>{state.scene='property';render()};m.querySelectorAll('[data-furn]').forEach(b=>b.onclick=()=>{let f=furniture.find(x=>x.id===b.dataset.furn);if(!currentHome()){toast('Choose a home first.');return}if(state.furniture.includes(f.id))return;if(spend(f.price)){state.furniture.push(f.id);state.mood=Math.min(100,state.mood+2);save();render();toast(f.name+' added to your home!')}});$('#viewHome').onclick=()=>{state.scene='home';render()}}
+function renderLife(m){m.innerHTML=`<section class="panel"><h2>💼 Make money & live your life</h2><p class="muted">Take a shift to earn money for rent, furniture and city adventures. Work costs energy; rest at home to recover.</p><div class="stats"><div class="stat">⚡ Energy<b>${state.energy}%</b></div><div class="stat">😊 Mood<b>${state.mood}%</b></div><div class="stat">⭐ Reputation<b>${state.rep}</b></div></div><div class="cards">${jobs.map((j,i)=>`<div class="item"><div class="emoji">${['☕','🛍️','💻','💅🏽'][i]}</div><strong>${j.name}</strong><small>${j.desc}<br>Energy cost: ${j.energy}</small><div style="font-size:12px;font-weight:900;margin-top:7px">Pay: ₺${j.pay.toLocaleString()}</div><button class="buy" data-job="${i}" ${state.energy<j.energy?'disabled':''}>Work shift</button></div>`).join('')}</div><div class="rowbtns"><button class="secondary" id="restLife">😴 Rest (+25 energy)</button><button class="secondary" id="daily">🎁 Daily bonus</button></div><div class="notice">Roleplay note: this is a fictional game economy. Real permits, employment and services are not handled by this prototype.</div></section>`;m.querySelectorAll('[data-job]').forEach(b=>b.onclick=()=>{let j=jobs[+b.dataset.job];if(state.energy<j.energy){toast('Not enough energy. Rest first.');return}state.energy-=j.energy;state.mood=Math.max(0,state.mood-3);state.rep++;earn(j.pay);state.time=(state.time+3)%24;save();render();toast('Shift complete! You earned ₺'+j.pay)});$('#restLife').onclick=()=>{state.energy=Math.min(100,state.energy+25);state.mood=Math.min(100,state.mood+8);save();render();toast('You feel refreshed!')};$('#daily').onclick=()=>{if(state.dayBonus===state.day){toast('You already collected today’s bonus.');return}state.dayBonus=state.day;earn(250);state.day++;save();render();toast('Daily bonus: ₺250!')}}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{state.scene=b.dataset.tab;render()}));
+window.addEventListener('resize',()=>{if(state.scene==='world')drawWorld();if(state.scene==='home')drawHome()});
+$('#modalBtn').onclick=()=>$('#overlay').classList.remove('show');
+if(!localStorage.getItem('cyprusLifeV05')){$('#modalTitle').textContent='Welcome to Cyprus Life 🌴';$('#modalText').textContent='Your new open-world-style prototype is ready. Walk around the city, rent a home, furnish it, work shifts and travel between North Cyprus cities. This version is a 2.5D browser game, not a full 3D engine.';$('#overlay').classList.add('show')}
+render();save();
+})();
+</script>
+</body></html>
